@@ -1,0 +1,3 @@
+henry:monkey:1001:1001::/home/henry:/bin/bash
+
+1 password hash cracked, 0 left

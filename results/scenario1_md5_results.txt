@@ -1,0 +1,5 @@
+alice:password123
+bob:letmein
+charlie:qwerty
+
+3 password hashes cracked, 0 left

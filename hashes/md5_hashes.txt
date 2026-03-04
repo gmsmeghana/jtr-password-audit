@@ -1,0 +1,3 @@
+alice:$1$I4bXBEfX$40.ROgzd.j.UvU2L1U8oG.
+bob:$1$Qt6B3hbl$GvZ/B4FIDCLSrh0UGIgwq.
+charlie:$1$O/IClvzs$HItJJqdW/X1vqWxTXdMXN0
