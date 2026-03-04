@@ -1,0 +1,152 @@
+# 🔐 Password Security Audit Lab — John the Ripper
+
+> **Disclaimer:** This project is strictly for educational purposes. All password hashes were self-generated in an isolated local environment. No real systems or third-party credentials were involved.
+
+---
+
+## 📌 Overview
+
+This project demonstrates password security auditing using **John the Ripper (JtR)** — an industry-standard open-source tool used by penetration testers and security professionals to evaluate password strength.
+
+The goal is to simulate real-world attack scenarios against various hash types and document the findings to understand how weak passwords get compromised.
+
+---
+
+## 🛠️ Tools & Environment
+
+| Tool | Purpose |
+|------|---------|
+| John the Ripper | Password hash cracking |
+| OpenSSL | Hash generation (MD5, SHA-512) |
+| rockyou.txt | Dictionary wordlist |
+| unshadow | Combine passwd + shadow files |
+| Kali Linux | Testing environment |
+
+---
+
+## 📁 Project Structure
+
+```
+jtr-password-audit/
+│
+├── README.md
+├── hashes/
+│   ├── md5_hashes.txt          # Scenario 1 — MD5 dictionary attack
+│   ├── md5_hashes2.txt         # Scenario 3 — Rule-based attack
+│   ├── sha512_hashes.txt       # Scenario 2 — SHA-512 dictionary attack
+│   ├── brute_hashes.txt        # Scenario 4 — Brute force
+│   ├── custom_wordlist.txt     # Custom wordlist used in Scenario 3
+│   ├── fake_passwd.txt         # Simulated /etc/passwd
+│   ├── fake_shadow.txt         # Simulated /etc/shadow
+│   └── unshadowed.txt          # Combined unshadow output
+│
+├── results/
+│   ├── scenario1_md5_results.txt
+│   ├── scenario3_rules_results.txt
+│   └── scenario5_unshadow_results.txt
+│
+├── findings.md                 # Full findings & analysis report
+└── screenshots/                # Terminal output screenshots
+```
+
+---
+
+## 🧪 Attack Scenarios
+
+### Scenario 1 — MD5 Dictionary Attack
+- **Hash type:** md5crypt (`$1$`)
+- **Method:** Dictionary attack using `rockyou.txt`
+- **Result:** 3/3 hashes cracked in under 1 second
+- **Passwords cracked:** `password123`, `letmein`, `qwerty`
+
+```bash
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes/md5_hashes.txt
+john --show hashes/md5_hashes.txt
+```
+
+---
+
+### Scenario 2 — SHA-512 Dictionary Attack
+- **Hash type:** sha512crypt (`$6$`)
+- **Method:** Dictionary attack using `rockyou.txt`
+- **Result:** Cracked — significantly slower than MD5 due to 5000 iterations
+
+```bash
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes/sha512_hashes.txt
+john --show hashes/sha512_hashes.txt
+```
+
+---
+
+### Scenario 3 — Rule-Based Attack
+- **Hash type:** md5crypt
+- **Method:** Custom wordlist + `--rules=best64` (password mangling)
+- **Target password:** `Password123!` (not in wordlist as-is)
+- **Result:** Cracked via rule mutation from base word `password`
+
+```bash
+john --wordlist=hashes/custom_wordlist.txt --rules=best64 hashes/md5_hashes2.txt
+john --show hashes/md5_hashes2.txt
+```
+
+---
+
+### Scenario 4 — Brute Force (Incremental Mode)
+- **Hash type:** md5crypt
+- **Method:** Incremental alpha mode, max length 4
+- **Target password:** `abc`
+- **Result:** Cracked via exhaustive character combination
+
+```bash
+john --incremental=alpha --max-length=4 hashes/brute_hashes.txt
+john --show hashes/brute_hashes.txt
+```
+
+---
+
+### Scenario 5 — Unshadow + Linux Shadow File Attack
+- **Hash type:** sha512crypt (`$6$`)
+- **Method:** Combine `/etc/passwd` + `/etc/shadow` → dictionary attack
+- **Result:** `henry:monkey` cracked — simulates real Linux credential auditing
+
+```bash
+unshadow hashes/fake_passwd.txt hashes/fake_shadow.txt > hashes/unshadowed.txt
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes/unshadowed.txt
+john --show hashes/unshadowed.txt
+```
+
+---
+
+## 📊 Key Findings
+
+| Hash Type | Attack Method | Time to Crack | Result |
+|-----------|--------------|---------------|--------|
+| MD5crypt | Dictionary | < 1 second | ✅ Cracked |
+| SHA-512crypt | Dictionary | ~seconds | ✅ Cracked |
+| MD5crypt | Rule-based | < 5 seconds | ✅ Cracked |
+| MD5crypt | Brute Force | < 10 seconds | ✅ Cracked |
+| SHA-512crypt (shadow) | Dictionary | ~seconds | ✅ Cracked |
+
+---
+
+## 🔑 Security Recommendations
+
+1. **Never use MD5 for password storage** — it is too fast and easily cracked
+2. **Use bcrypt or Argon2** — modern, slow hashing algorithms designed for passwords
+3. **Enforce strong password policies** — length > 12 chars, mixed case, symbols, no dictionary words
+4. **Use a password manager** — eliminates reuse and weak password habits
+5. **Enable MFA** — even if a password is cracked, a second factor protects the account
+
+---
+
+## 📚 References
+
+- [John the Ripper Official Docs](https://www.openwall.com/john/)
+- [rockyou.txt wordlist](https://github.com/brannondorsey/naive-hashcat/releases)
+- [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+
+---
+
+## ⚖️ Legal & Ethical Notice
+
+This project was conducted entirely in a self-contained local lab environment on Kali Linux. All hashes were generated by the author for testing purposes only. This project does not endorse or facilitate unauthorized access to any system.
